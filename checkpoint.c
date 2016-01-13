@@ -24,8 +24,7 @@
 
 // Create a new process copying p as the parent.
 // Sets up stack to return as if from system call.
-// Caller must set state of returned proc to RUNNABLE.
-int checkpoint(struct proc *p)
+static int checkpoint(struct proc *p)
 {
 	// Allocate process.
   	//if((checkpoint_proc = allocproc()) == 0)
@@ -40,10 +39,10 @@ int checkpoint(struct proc *p)
   	}
   	p->sz = proc->sz;
   	p->parent = proc;
-  	*p->tf = *proc->tf;
+  	// *p->tf = *proc->tf;
 
   	// Clear %eax so that fork returns 0 in the child.
-  	p->tf->eax = 0;
+	// p->tf->eax = 0;
 
 	/*
   	for(i = 0; i < NOFILE; i++)
@@ -53,13 +52,14 @@ int checkpoint(struct proc *p)
 	*/
 
   	safestrcpy(p->name, proc->name, sizeof(proc->name));
+	cprintf("Your process name was: %s\n", p->name);
 
 	return 0;
 }
 
 int sys_checkpoint(void)
 {
-	char *p;
+	char *p = 0;
 	if (argptr(0, &p, sizeof(struct proc)) < 0)
 		return -1;
 	return checkpoint((struct proc *) p);
