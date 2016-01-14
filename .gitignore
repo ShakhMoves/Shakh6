@@ -15,3 +15,5 @@ kernelmemfs
 mkfs
 .gdbinit
 dist/
+.idea/
+*.iml
