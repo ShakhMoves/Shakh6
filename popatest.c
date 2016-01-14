@@ -49,7 +49,7 @@ int main()
 	
 	p = malloc(sizeof(struct proc));
 
-	checkpoint(p);
+	checkpoint_proc(p);
 
 	printf(1, "At the end we have: %s\n", p->name);
 	for (i = 0; i < p->sz; i++) {

@@ -24,7 +24,8 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
-int checkpoint(struct proc *);
+int checkpoint_proc(struct proc *);
+int checkpoint_mem(void *);
 
 // ulib.c
 int stat(char*, struct stat*);
