@@ -46,28 +46,24 @@ static pte_t *walkpgdir(pde_t *pgdir, const void *va, int alloc)
 	return &pgtab[PTX(va)];
 }
 
-static int checkpoint_mem(void *p)
+static int checkpoint_mem(void *p, uint sz)
 {
 	pte_t *pte;
 	uint pa, i;
-	for(i = 0; i < proc->sz; i += PGSIZE){
+	for(i = 0; i < sz; i += PGSIZE){
 		if((pte = walkpgdir(proc->pgdir, (void *) i, 0)) == 0)
-			panic("copyuvm: pte should exist");
+			panic("checkpoint_mem: pte should exist");
 		if(!(*pte & PTE_P))
-			panic("copyuvm: page not present");
+			panic("checkpoint_mem: page not present");
 		pa = PTE_ADDR(*pte);
 		memmove(p + i, (char*)p2v(pa), PGSIZE);
 	}
+
 	return 0;
 }
 
 static int checkpoint_proc(struct proc *p)
 {
-	// Allocate process.
-  	//if((checkpoint_proc = allocproc()) == 0)
-	//	return -1;
-
-  	// Copy process state from p.
   	if((p->pgdir = copyuvm(proc->pgdir, proc->sz)) == 0){
     		kfree(p->kstack);
     		p->kstack = 0;
@@ -76,17 +72,6 @@ static int checkpoint_proc(struct proc *p)
   	}
   	p->sz = proc->sz;
   	p->parent = proc;
-  	// *p->tf = *proc->tf;
-
-  	// Clear %eax so that fork returns 0 in the child.
-	// p->tf->eax = 0;
-
-	/*
-  	for(i = 0; i < NOFILE; i++)
-		if(proc->ofile[i])
-			p->ofile[i] = filedup(proc->ofile[i]);
-  	p->cwd = idup(proc->cwd);
-	*/
 
   	safestrcpy(p->name, proc->name, sizeof(proc->name));
 	cprintf("Your process name was: %s\n", p->name);
@@ -105,7 +90,10 @@ int sys_checkpoint_proc(void)
 int sys_checkpoint_mem(void)
 {
 	char *p = 0;
-	if (argptr(0, &p, proc->sz) < 0)
+	int sz = 0;
+	if (argint(0, &sz) < 0)
 		return -1;
-	return checkpoint_mem((void *) p);
+	if (argptr(1, &p, sz) < 0)
+		return -1;
+	return checkpoint_mem((void *) p, sz);
 }

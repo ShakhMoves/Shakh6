@@ -17,6 +17,7 @@
 #include "types.h"
 #include "stat.h"
 #include "user.h"
+#include "fcntl.h"
 #include "fs.h"
 #include "fcntl.h"
 #include "syscall.h"
@@ -44,19 +45,22 @@ struct proc {
 
 int main()
 {
-	int i;
 	struct proc *p;
+	void *pg;
 	
 	p = malloc(sizeof(struct proc));
 
 	checkpoint_proc(p);
+	pg = malloc(p->sz);
 
-	printf(1, "At the end we have: %s\n", p->name);
-	for (i = 0; i < p->sz; i++) {
-		printf(1, "%x ", p->pgdir + i);
+	if (checkpoint_mem(pg, p->sz) == 0) {
+		int fd = open("checkpoint.bin", O_WRONLY | O_CREATE);
+		if (write(fd, pg, p->sz) < p->sz)
+			printf(2, "everything went wrong\n");
+		printf(1, "write was Done on %d\n", fd);
 	}
-	printf(1, "\n");
 
+	free(pg);
 	free(p);
 
 	exit();
