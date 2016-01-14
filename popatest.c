@@ -44,11 +44,18 @@ struct proc {
 
 int main()
 {
-	struct proc *p = malloc(sizeof(struct proc));
+	int i;
+	struct proc *p;
+	
+	p = malloc(sizeof(struct proc));
 
 	checkpoint(p);
 
 	printf(1, "At the end we have: %s\n", p->name);
+	for (i = 0; i < p->sz; i++) {
+		printf(1, "%x ", p->pgdir + i);
+	}
+	printf(1, "\n");
 
 	free(p);
 
