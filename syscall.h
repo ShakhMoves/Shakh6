@@ -21,5 +21,6 @@
 #define SYS_mkdir  20
 #define SYS_close  21
 // Checkpoint/Restore system calls
+#define SYS_restore         72
 #define SYS_checkpoint_proc 73
 #define SYS_checkpoint_mem  74

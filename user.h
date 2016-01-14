@@ -26,6 +26,7 @@ int sleep(int);
 int uptime(void);
 int checkpoint_proc(struct proc *);
 int checkpoint_mem(void *, uint sz);
+int restore(char *, struct proc *);
 
 // ulib.c
 int stat(char*, struct stat*);

@@ -57,8 +57,12 @@ static int checkpoint_mem(void *p, uint sz)
 			panic("checkpoint_mem: page not present");
 		pa = PTE_ADDR(*pte);
 		memmove(p + i, (char*)p2v(pa), PGSIZE);
+		cprintf("write successfuly at %p\n", p + i);
 	}
-
+	
+	*((struct trapframe *) (p + sz)) = *(proc->tf);
+	cprintf("dump trapframe successfuly... [%p] :)\n", proc->tf->eip);
+	
 	return 0;
 }
 
@@ -71,7 +75,7 @@ static int checkpoint_proc(struct proc *p)
     		return -1;
   	}
   	p->sz = proc->sz;
-  	p->parent = proc;
+  	p->pid = proc->tf->eip;
 
   	safestrcpy(p->name, proc->name, sizeof(proc->name));
 	cprintf("Your process name was: %s\n", p->name);
@@ -93,7 +97,7 @@ int sys_checkpoint_mem(void)
 	int sz = 0;
 	if (argint(0, &sz) < 0)
 		return -1;
-	if (argptr(1, &p, sz) < 0)
+	if (argptr(1, &p, sz + sizeof(struct trapframe)) < 0)
 		return -1;
 	return checkpoint_mem((void *) p, sz);
 }
