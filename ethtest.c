@@ -14,7 +14,8 @@ void dump(const u8_t* buf, int size);
 void
 getip(int fd)
 {
-  // DHCPパケットを作成し、IPアドレスを取得
+  printf(1,"get ip\n");
+  // Create the DHCP packet, and obtain an IP address
   static eth_hdr_t ethhdr = {
     dst: { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF },
     src: { MAC_ADDRESS },
@@ -55,7 +56,7 @@ getip(int fd)
   uchar* t;
   static uchar buf[ETH_MAX_SIZE];
   int size;
-  
+
   size = sizeof(udphdr) + sizeof(dhcp) - sizeof(dhcp.options) + 13;
   udphdr.length = htons(size);
   size += sizeof(iphdr);
@@ -63,7 +64,7 @@ getip(int fd)
   
   ip4_checksum(&iphdr);
   udp_checksum(&iphdr, &udphdr, (u16_t*)&dhcp);
-  
+
   t = buf;
   memmove(t, &ethhdr, sizeof(ethhdr));
   t += sizeof(ethhdr);
@@ -74,8 +75,9 @@ getip(int fd)
   memmove(t, &dhcp, sizeof(dhcp));
 
   size += sizeof(ethhdr);
-  printf(1, "write %d byte\n", write(fd, buf, size));
-  //dump(buf, size);
+  printf(1, "writing %d byte :\n", size);
+  dump(buf, size);
+  printf(1,"wrote %d byte\n",write(fd, buf, size));
 
   while ((size = read(fd, buf, ETH_MAX_SIZE)) == 0)
     sleep(10);
