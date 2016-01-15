@@ -21,7 +21,7 @@ ethioctl(struct inode* ip, int request, void* p)
 {
   switch (request) {
   case ETH_IPC_SETUP:
-    cprintf("%s: ETH_IPC_SETUP isn't still implemented because of no IPC\n", ne.name);
+//    cprintf("%s: ETH_IPC_SETUP isn't still implemented because of no IPC\n", ne.name);
     break;
   }
   return 0;
@@ -51,7 +51,7 @@ ethinit()
   devsw[ETHERNET].ioctl = ethioctl;
 
   for (i = 0; i < NELEM(ports); ++i) {
-    cprintf("Ethernet: Initialize port %d.\n", i);
+    cprintf("Ethernet: Initialize port %d [0x%x].\n", i, ports[i]);
     memset(&ne, 0, sizeof(ne));
     name[3] = '0' + i;
     strncpy(ne.name, name, strlen(name)+1);
