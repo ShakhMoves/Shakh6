@@ -45,27 +45,28 @@ ethinit()
   int i;
   char name[] = "eth#";
   //Ethernet Auto-Probing <http://www.tldp.org/LDP/nag/node50.html>
-  int ports[] = { 0x300, 0xC100, 0x240, 0x280, 0x320, 0x340, 0x360 };
+  int ports[] = { 0xC100, 0x240, 0x280, 0x320, 0x340, 0x360 };
 
   devsw[ETHERNET].write = ethwrite;
   devsw[ETHERNET].read = ethread;
   devsw[ETHERNET].ioctl = ethioctl;
 
   for (i = 0; i < NELEM(ports); ++i) {
-    cprintf("Ethernet: Initialize port %d [0x%x].\n", i, ports[i]);
     memset(&ne, 0, sizeof(ne));
     name[3] = '0' + i;
     strncpy(ne.name, name, strlen(name)+1);
     ne.irq = IRQ_ETH;
     ne.base = ports[i];
     if (ne_probe(&ne)) {
+      cprintf("Ethernet: Initialize port %d [0x%x].\n", i, ports[i]);
       ne_init(&ne);
       picenable(ne.irq);
       ioapicenable(ne.irq, 0);
       break;
     }
   }
-  
+
+  cprintf("Ethernet: Initialize failed!\n");
   return;
 }
 
