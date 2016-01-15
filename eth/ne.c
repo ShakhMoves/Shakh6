@@ -4,35 +4,35 @@
 #include "../net/net.h"
 #include "ne.h"
 
-// ※コメントの[数値(キーワード)]はDP8390仕様書のページ番号
+// [numerical value (keyword)] comments page number of DP8390 specifications
 // DP8390 Documents: http://www.national.com/ds/DP/DP8390D.pdf
 
-// NICの接続チェックとMACアドレスの取得。
+// Get a connection check the MAC address of the NIC.
 int
 ne_probe(ne_t* ne)
 {
   uchar eprom[32];
   int reg0;
   int i;
-  
+
   reg0 = inb(ne->base);
   if (reg0 == 0xFF)
     return FALSE;
 
-  // DP8390が存在するかのチェック
+  // Check whether the DP8390 is present
   {
     int regd;
-    // ページ1にしてMAR5を保存してから0xFFを書き込む。
+    // In the page 1 to write 0xFF Save the MAR5.
     outb(ne->base + DP_CR, CR_STP | CR_NO_DMA | CR_PS_P1);
     regd = inb(ne->base + DP_MAR5);
     outb(ne->base + DP_MAR5, 0xFF);
-    // [17] ページ1のMAR5はページ0のCNTR0に相当する。
+    // [17] MAR5 of page 1 corresponds to CNTR0 of page 0.
     outb(ne->base + DP_CR, CR_NO_DMA | CR_PS_P0);
-    // [29] CNTR0レジスタはCRCエラーの時にインクリメントされるカウンタ。
-    // プロセッサに読み出された後にクリアされる仕様。
+    // [29] CNTR0 counter register that is incremented when the CRC error.
+    // Specification is cleared after being read by the processor.
     inb(ne->base + DP_CNTR0);
     if (inb(ne->base + DP_CNTR0) != 0) {
-      // 違うようなので値を戻しておく。
+      // Since different like to keep returns a value.
       outb(ne->base, reg0);
       outb(ne->base + DP_TCR, regd);
       cprintf("%s: This is not NEx000.\n", ne->name);
@@ -40,24 +40,25 @@ ne_probe(ne_t* ne)
     }
   }
 
-  // ボードのリセット
+  // Board reset
   {
     int i = 0;
-    // よく分からないがこれでリセットできるようだ
+    // Do not know well, but seems to be reset in this
     outb(ne->base + NE_RESET, inb(ne->base + NE_RESET));
-    // リセットのISR(割り込み)をpollingする。
+    // Reset of the ISR (interrupt) it will be polling.
     while (inb(ne->base + DP_ISR) == 0) {
-      // 一応終わるようにしておく。
-      // できれば20msなど正確なタイムアウト処理ができるとよいのだが、
-      // xv6では現時点では正確にsleepする処理が作成されていないので適当。
+     // It should be so tentatively end.
+     // And he may be the exact time-out processing, such as 20ms if possible but,
+     // Since the process of sleep exactly at the moment in xv6 has not been created appropriate.
       if (i++ > 10000) {
         cprintf("%s: NIC reset failure\n", ne->name);
         return FALSE;
       }
     }
-    // [20] ISRは各ビットが1の時、割り込み無しと言う意味。
-    // 0のビットがあった場合、CPUに割り込みが発生し、CPUは処理したらフラグを
-    // 立て直すが、まだCPUへの割り込みは無効なので、手動で直しておく。
+
+    // [20] ISR when each bit is 1, meaning to say that no interruption.
+    // If there  0 bits, an interrupt to the CPU is generated, the flag After the CPU processes
+    // To rebuild, but still so interrupt to the CPU is invalid, to keep manually fix.
     outb(ne->base + DP_ISR, 0xFF);
   }
 
@@ -118,11 +119,11 @@ ne_probe(ne_t* ne)
     if (eprom[14] != 0x57 || eprom[15] != 0x57)
       return FALSE;
   }
-  
+
   // MACアドレスの取得
   for (i = 0; i < 6; ++i)
     ne->address[i] = eprom[i];
-  
+
   return TRUE;
 }
 
@@ -302,7 +303,7 @@ ne_pio_write(ne_t* ne, uchar* packet, int size)
 
   // ToDo: 多分算術オーバーフロー対策しないといけない。
   ne->sendq_head++;
-  
+
   return size;
 }
 
@@ -332,7 +333,7 @@ ne_pio_read(ne_t* ne, uchar* buf, int bufsize)
   outb(ne->base + DP_CR, CR_PS_P0 | CR_NO_DMA | CR_STA);
   bnry = inb(ne->base + DP_BNRY);
   page = bnry + 1;
-  
+
   // 末尾だったら先頭に。
   if (page == ne->recv_stoppage)
     page = ne->recv_startpage;
@@ -348,7 +349,7 @@ ne_pio_read(ne_t* ne, uchar* buf, int bufsize)
   ne_getblock(ne, page * DP_PAGESIZE, sizeof(header), &header);
   // パケットサイズを算出
   pktsize = (header.rbc0 | (header.rbc1 << 8)) - sizeof(header);
-  
+
   // パケット長がイーサネットのパケットサイズ範囲内か
   if (pktsize < ETH_MIN_SIZE || pktsize > ETH_MAX_SIZE) {
     cprintf("%s: Packet with strange length arrived: %d\n",
