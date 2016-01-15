@@ -98,7 +98,9 @@ extern int sys_unlink(void);
 extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
-extern int sys_checkpoint(void);
+extern int sys_restore(void);
+extern int sys_checkpoint_proc(void);
+extern int sys_checkpoint_mem(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -122,7 +124,9 @@ static int (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
-[SYS_checkpoint] sys_checkpoint,
+[SYS_restore] sys_restore,
+[SYS_checkpoint_mem] sys_checkpoint_mem,
+[SYS_checkpoint_proc] sys_checkpoint_proc,
 };
 
 void

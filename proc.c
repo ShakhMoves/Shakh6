@@ -464,3 +464,48 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+int
+procload(struct proc *p, char *path)
+{
+  int i;
+  struct proc np;
+  struct inode *ip;
+
+  begin_op();
+  if ((ip = namei(path)) == 0) {
+    end_op();
+    return -1;
+  }
+  ilock(ip);
+ 
+  if((np.pgdir = setupkvm()) == 0)
+    return -1;
+  
+  if((np.sz = allocuvm(np.pgdir, 0, p->sz)) == 0)
+    return -1;
+
+  for(i = 0; i < p->sz; i+=PGSIZE) {
+    if(loaduvm(np.pgdir, (void *)i, ip, sizeof(struct proc) + i, PGSIZE) < 0)
+      return -1;
+  }
+
+  iunlockput(ip);
+  end_op();
+  ip = 0;
+
+  np.tf->eax = proc->pid;
+  np.tf->eip = p->tf->eip;
+  np.tf->esp = p->tf->esp;
+  np.tf->ebp = p->tf->ebp;
+
+  proc->pgdir = np.pgdir;
+  proc->sz = PGROUNDUP(np.sz);
+  *proc->tf = *np.tf;
+
+  cprintf("set %d state running from %p\n", proc->pid, np.tf->eip);
+  switchuvm(proc);
+
+  return 0;
+
+}

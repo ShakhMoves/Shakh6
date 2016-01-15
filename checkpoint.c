@@ -22,15 +22,52 @@
 #include "proc.h"
 #include "spinlock.h"
 
-// Create a new process copying p as the parent.
-// Sets up stack to return as if from system call.
-static int checkpoint(struct proc *p)
+// Return the address of the PTE in page table pgdir
+// that corresponds to virtual address va.  If alloc!=0,
+// create any required page table pages.
+static pte_t *walkpgdir(pde_t *pgdir, const void *va, int alloc)
 {
-	// Allocate process.
-  	//if((checkpoint_proc = allocproc()) == 0)
-	//	return -1;
+	pde_t *pde;
+	pte_t *pgtab;
+	
+	pde = &pgdir[PDX(va)];
+	if(*pde & PTE_P){
+		pgtab = (pte_t*)p2v(PTE_ADDR(*pde));
+	} else {
+		if(!alloc || (pgtab = (pte_t*)kalloc()) == 0)
+			return 0;
+		// Make sure all those PTE_P bits are zero.
+		memset(pgtab, 0, PGSIZE);
+		// The permissions here are overly generous, but they can
+		// be further restricted by the permissions in the page table 
+		// entries, if necessary.
+		*pde = v2p(pgtab) | PTE_P | PTE_W | PTE_U;
+	}
+	return &pgtab[PTX(va)];
+}
 
-  	// Copy process state from p.
+static int checkpoint_mem(void *p, uint sz)
+{
+	pte_t *pte;
+	uint pa, i;
+	for(i = 0; i < sz; i += PGSIZE){
+		if((pte = walkpgdir(proc->pgdir, (void *) i, 0)) == 0)
+			panic("checkpoint_mem: pte should exist");
+		if(!(*pte & PTE_P))
+			panic("checkpoint_mem: page not present");
+		pa = PTE_ADDR(*pte);
+		memmove(p + i, (char*)p2v(pa), PGSIZE);
+		cprintf("write successfuly at %p\n", p + i);
+	}
+	
+	*((struct trapframe *) (p + sz)) = *(proc->tf);
+	cprintf("dump trapframe successfuly... [%p] :)\n", proc->tf->eip);
+	
+	return 0;
+}
+
+static int checkpoint_proc(struct proc *p)
+{
   	if((p->pgdir = copyuvm(proc->pgdir, proc->sz)) == 0){
     		kfree(p->kstack);
     		p->kstack = 0;
@@ -38,18 +75,7 @@ static int checkpoint(struct proc *p)
     		return -1;
   	}
   	p->sz = proc->sz;
-  	p->parent = proc;
-  	// *p->tf = *proc->tf;
-
-  	// Clear %eax so that fork returns 0 in the child.
-	// p->tf->eax = 0;
-
-	/*
-  	for(i = 0; i < NOFILE; i++)
-		if(proc->ofile[i])
-			p->ofile[i] = filedup(proc->ofile[i]);
-  	p->cwd = idup(proc->cwd);
-	*/
+  	p->pid = proc->tf->eip;
 
   	safestrcpy(p->name, proc->name, sizeof(proc->name));
 	cprintf("Your process name was: %s\n", p->name);
@@ -57,11 +83,21 @@ static int checkpoint(struct proc *p)
 	return 0;
 }
 
-int sys_checkpoint(void)
+int sys_checkpoint_proc(void)
 {
 	char *p = 0;
 	if (argptr(0, &p, sizeof(struct proc)) < 0)
 		return -1;
-	return checkpoint((struct proc *) p);
+	return checkpoint_proc((struct proc *) p);
 }
 
+int sys_checkpoint_mem(void)
+{
+	char *p = 0;
+	int sz = 0;
+	if (argint(0, &sz) < 0)
+		return -1;
+	if (argptr(1, &p, sz + sizeof(struct trapframe)) < 0)
+		return -1;
+	return checkpoint_mem((void *) p, sz);
+}
