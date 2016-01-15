@@ -176,6 +176,7 @@ UPROGS=\
 	_zombie\
 	_popatest\
 	_papotest\
+	_halt\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

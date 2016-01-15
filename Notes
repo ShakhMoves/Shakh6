@@ -121,3 +121,23 @@ echo foo > bar should truncate bar
 make it work on a real machine
 release before acquire at end of sleep?
 check 2nd disk (i.e. if not in .bochsrc)
+
++ add a new system call
+- syscall.h
+    #define SYS_foo num
+- syscall.c
+    extern int sys_foo(void);
+    static int (*syscalls[])(void) = {
+        [SYS_foo]    sys_foo,
+- somesource.c
+     int sys_foo(void) { ... }
+- user.h
+    int sys_foo(void);
+- usys.S
+    SYSCALL(foo)
+
++ Add a new user program
+- Makefile
+    UPROGS=\
+        ...
+        _foo\

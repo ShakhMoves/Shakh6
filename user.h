@@ -10,6 +10,7 @@ int pipe(int*);
 int write(int, void*, int);
 int read(int, void*, int);
 int close(int);
+int halt(void);
 int kill(int);
 int exec(char*, char**);
 int open(char*, int);

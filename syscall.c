@@ -79,6 +79,7 @@ argstr(int n, char **pp)
 
 extern int sys_chdir(void);
 extern int sys_close(void);
+extern int sys_halt(void);
 extern int sys_dup(void);
 extern int sys_exec(void);
 extern int sys_exit(void);
@@ -124,6 +125,7 @@ static int (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_halt]    sys_halt,
 [SYS_restore] sys_restore,
 [SYS_checkpoint_mem] sys_checkpoint_mem,
 [SYS_checkpoint_proc] sys_checkpoint_proc,
