@@ -44,6 +44,7 @@ ethinit()
 {
   int i;
   char name[] = "eth#";
+  //Ethernet Auto-Probing <http://www.tldp.org/LDP/nag/node50.html>
   int ports[] = { 0x300, 0xC100, 0x240, 0x280, 0x320, 0x340, 0x360 };
 
   devsw[ETHERNET].write = ethwrite;
