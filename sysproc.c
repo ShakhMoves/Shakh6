@@ -88,8 +88,9 @@ sys_halt(void) {
     //TODO: serial_flush,filesys_done
     cprintf("** Shutting down system **\n");
     char *p = "Shutdown";
-    for (; *p; p++)
+    for (; *p; p++) {
+        outw(0xB004, (uchar) *p);
         outb(0x8900, (uchar) *p);
-    cprintf("** i'm alive :} **\n");
+    }
     return 0;
 }
