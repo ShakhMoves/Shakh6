@@ -60,8 +60,6 @@ static int checkpoint_mem(void *p, uint sz)
 		cprintf("write successfuly at %p\n", p + i);
 	}
 	
-	cprintf("We have %d and %d\n", i, sz);
-	cprintf("and my dummy idea: %d\n", (sz / PGSIZE + 1) * PGSIZE);
 	*((struct trapframe *) (p + sz)) = *(proc->tf);
 	cprintf("dump trapframe successfuly... [%p] :)\n", proc->tf->eip);
 	
