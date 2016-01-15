@@ -482,10 +482,10 @@ procload(struct proc *p, char *path)
   if((np.pgdir = setupkvm()) == 0)
     return -1;
   
-  if((np.sz = allocuvm(np.pgdir, 0, p->sz)) == 0)
-    return -1;
-
+  np.sz = 0;
   for(i = 0; i < p->sz; i+=PGSIZE) {
+    if((np.sz = allocuvm(np.pgdir, np.sz, i + PGSIZE)) == 0)
+      return -1;
     if(loaduvm(np.pgdir, (void *)i, ip, sizeof(struct proc) + i, PGSIZE) < 0)
       return -1;
   }

@@ -1,7 +1,7 @@
 /*
  * In The Name Of God
  * ========================================
- * [] File Name : checkpoint.c
+ * [] File Name : halt.c
  *
  * [] Creation Date : 13-01-2016
  *
