@@ -23,7 +23,6 @@
 #include "syscall.h"
 #include "traps.h"
 #include "memlayout.h"
-#include "mmu.h"
 
 struct trapframe {
   // registers as pushed by pusha

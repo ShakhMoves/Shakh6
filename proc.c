@@ -468,6 +468,7 @@ procdump(void)
 int
 procload(struct proc *p, char *path)
 {
+  int i;
   struct proc np;
   struct inode *ip;
 
@@ -484,8 +485,10 @@ procload(struct proc *p, char *path)
   if((np.sz = allocuvm(np.pgdir, 0, p->sz)) == 0)
     return -1;
 
-  if(loaduvm(np.pgdir, 0, ip, sizeof(struct proc), p->sz) < 0)
-    return -1;
+  for(i = 0; i < p->sz; i+=PGSIZE) {
+    if(loaduvm(np.pgdir, (void *)i, ip, sizeof(struct proc) + i, PGSIZE) < 0)
+      return -1;
+  }
 
   iunlockput(ip);
   end_op();
@@ -493,6 +496,8 @@ procload(struct proc *p, char *path)
 
   np.tf->eax = proc->pid;
   np.tf->eip = p->tf->eip;
+  np.tf->esp = p->tf->esp;
+  np.tf->ebp = p->tf->ebp;
 
   proc->pgdir = np.pgdir;
   proc->sz = PGROUNDUP(np.sz);
