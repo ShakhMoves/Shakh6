@@ -27,6 +27,7 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+int ioctl(int, int, void*);
 int checkpoint_proc(struct proc *);
 int checkpoint_mem(void *, uint sz);
 int restore(char *, struct proc *);

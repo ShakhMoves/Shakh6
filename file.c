@@ -8,6 +8,7 @@
 #include "fs.h"
 #include "file.h"
 #include "spinlock.h"
+#include "stat.h"
 
 struct devsw devsw[NDEV];
 struct {
@@ -154,3 +155,19 @@ filewrite(struct file *f, char *addr, int n)
   panic("filewrite");
 }
 
+// Write to file f.  Addr is kernel address.
+int
+fileioctl(struct file *f, int request, void* argp)
+{
+  int r;
+  struct inode* ip = f->ip;
+
+  if (f->type == FD_PIPE || ip->type != T_DEV)
+    return -1;
+  if(ip->major < 0 || ip->major >= NDEV || !devsw[ip->major].ioctl)
+    return -1;
+  ilock(ip);
+  r = devsw[ip->major].ioctl(ip, request, argp);
+  iunlock(ip);
+  return r;
+}

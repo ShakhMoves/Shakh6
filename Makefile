@@ -29,6 +29,8 @@ OBJS = \
 	vm.o\
 	checkpoint.o\
 	restore.o\
+	eth/ne.o\
+    eth/eth.o\
 
 # Cross-compiling (e.g., on Mac OS X)
 # TOOLPREFIX = i386-jos-elf
@@ -136,7 +138,7 @@ tags: $(OBJS) entryother.S _init
 vectors.S: vectors.pl
 	perl vectors.pl > vectors.S
 
-ULIB = ulib.o usys.o printf.o umalloc.o
+ULIB = ulib.o usys.o printf.o umalloc.o net/net.o
 
 _%: %.o $(ULIB)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $^
@@ -177,6 +179,7 @@ UPROGS=\
 	_popatest\
 	_papotest\
 	_halt\
+	_ethtest\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -188,7 +191,9 @@ clean:
 	*.o *.d *.asm *.sym vectors.S bootblock entryother \
 	initcode initcode.out kernel xv6.img fs.img kernelmemfs mkfs \
 	.gdbinit \
-	$(UPROGS)
+	$(UPROGS) \
+	*.exe bootother bootother.out initcode initcode.out \
+	eth/*.o eth/*.d net/*.o net/*.d
 
 # make a printout
 FILES = $(shell grep -v '^\#' runoff.list)
@@ -215,7 +220,9 @@ QEMUGDB = $(shell if $(QEMU) -help | grep -q '^-gdb'; \
 ifndef CPUS
 CPUS := 2
 endif
-QEMUOPTS = -hdb fs.img xv6.img -smp $(CPUS) -m 512 -no-acpi $(QEMUEXTRA)
+QEMUOPTS = -hdb fs.img xv6.img -smp $(CPUS) -m 512 -no-acpi \
+ -net nic,model=ne2k_pci,macaddr=52:54:00:12:34:56 -net user \
+ $(QEMUEXTRA)
 
 qemu: fs.img xv6.img
 	$(QEMU) -serial mon:stdio $(QEMUOPTS)
