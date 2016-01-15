@@ -123,17 +123,17 @@ release before acquire at end of sleep?
 check 2nd disk (i.e. if not in .bochsrc)
 
 + add a new system call
-- syscall.h
+- syscall.h : define the position of the system call vector that connect to your implementation
     #define SYS_foo num
-- syscall.c
+- syscall.c : external define the function that connect the shell and the kernel, use the position defined in syscall.h to add the function to the system call vector
     extern int sys_foo(void);
     static int (*syscalls[])(void) = {
         [SYS_foo]    sys_foo,
-- somesource.c
+- sysproc.c : add the real implementation of your method here
      int sys_foo(void) { ... }
-- user.h
+- user.h : define the function that can be called through the shell
     int sys_foo(void);
-- usys.S
+- usys.S : use the macro to define connect the call of user to the system call function
     SYSCALL(foo)
 
 + Add a new user program

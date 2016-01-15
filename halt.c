@@ -17,5 +17,5 @@
 
 int main(void) {
     halt();
-    return 0;
+    exit();
 }
