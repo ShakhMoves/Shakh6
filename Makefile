@@ -177,7 +177,7 @@ UPROGS=\
 	_wc\
 	_zombie\
 	_checkpoint_test\
-	_papotest\
+	_restore_test\
 	_halt\
 	_ethtest\
 
@@ -254,7 +254,7 @@ EXTRA=\
 	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
 	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
 	printf.c umalloc.c\
-	checkpoint_test.c papotest.c\
+	checkpoint_test.c restore_test.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\
 
