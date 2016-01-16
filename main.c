@@ -10,6 +10,7 @@ static void startothers(void);
 static void mpmain(void)  __attribute__((noreturn));
 extern pde_t *kpgdir;
 extern char end[]; // first address after kernel loaded from ELF file
+void banner();
 
 // Bootstrap processor starts running C code here.
 // Allocate a real stack and switch to it, first
@@ -22,7 +23,7 @@ main(void)
   mpinit();        // collect info about this machine
   lapicinit();
   seginit();       // set up segments
-  cprintf("\ncpu%d: starting xv6\n\n", cpu->id);
+  banner();
   picinit();       // interrupt controller
   ioapicinit();    // another interrupt controller
   consoleinit();   // I/O devices & their interrupts
@@ -46,7 +47,7 @@ main(void)
 static void
 mpenter(void)
 {
-  switchkvm(); 
+  switchkvm();
   seginit();
   lapicinit();
   mpmain();
@@ -83,7 +84,7 @@ startothers(void)
     if(c == cpus+cpunum())  // We've started already.
       continue;
 
-    // Tell entryother.S what stack to use, where to enter, and what 
+    // Tell entryother.S what stack to use, where to enter, and what
     // pgdir to use. We cannot use kpgdir yet, because the AP processor
     // is running in low  memory, so we use entrypgdir for the APs too.
     stack = kalloc();
@@ -110,6 +111,25 @@ pde_t entrypgdir[NPDENTRIES] = {
   // Map VA's [KERNBASE, KERNBASE+4MB) to PA's [0, 4MB)
   [KERNBASE>>PDXSHIFT] = (0) | PTE_P | PTE_W | PTE_PS,
 };
+
+// Show OS Banner
+void banner() {
+    cprintf("\ncpu%d: starting os\n\n", cpu->id);
+    const char* b[] =   {
+                       "--------------------------------------------------------------------",
+                       "      _______. __    __       ___       __  ___  __    __     __   ",
+                       "     /       ||  |  |  |     /   \\     |  |/  / |  |  |  |   / /   ",
+                       "    |   (----`|  |__|  |    /  ^  \\    |  '  /  |  |__|  |  / /_   ",
+                       "     \\   \\    |   __   |   /  /_\\  \\   |    <   |   __   | | '_ \\  ",
+                       " .----)   |   |  |  |  |  /  _____  \\  |  .  \\  |  |  |  | | (_) | ",
+                       " |_______/    |__|  |__| /__/     \\__\\ |__|\\__\\ |__|  |__|  \\___/  ",
+                       "--------------------------------------------------------------------",
+  };
+  int i;
+  for(i=0;i<NELEM(b);i++)
+      cprintf("%s\n",b[i]);
+}
+
 
 //PAGEBREAK!
 // Blank page.
