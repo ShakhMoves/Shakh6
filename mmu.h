@@ -1,4 +1,7 @@
-// This file contains definitions for the 
+#ifndef MMUH_INCLUDE
+#define MMUH_INCLUDE
+
+// This file contains definitions for the
 // x86 memory management unit (MMU).
 
 // Eflags register
@@ -224,3 +227,5 @@ struct gatedesc {
 }
 
 #endif
+
+#endif //MMUH_INCLUDED
