@@ -51,9 +51,9 @@ int main() {
     	}
 
     	int fd = open("checkpoint.bin", O_WRONLY | O_CREATE);
-	if((write(fd, ch->pages, ch->p.sz) < ch->p.sz) || // Serialize pages
-			(write(fd, &ch->p, sizeof(struct proc)) < sizeof(struct proc)) || // Serialize Proc
+	if((write(fd, &ch->p, sizeof(struct proc)) < sizeof(struct proc)) || // Serialize Proc
 			(write(fd, &ch->tf, sizeof(struct trapframe)) < sizeof(struct trapframe)) || // Serialize TrapFrame
+			(write(fd, ch->pages, ch->p.sz) < ch->p.sz) || // Serialize pages
 			(write(fd, ch->flags, (ch->p.sz / PGSIZE + 1) * sizeof(uint)) < (ch->p.sz / PGSIZE + 1) * sizeof(uint))) {
     		printf(2, "everything went wrong\n");
     	}

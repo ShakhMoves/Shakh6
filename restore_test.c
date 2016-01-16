@@ -31,14 +31,18 @@ int main()
 	struct checkpoint_t *ch;
 	
 	ch = malloc(sizeof(struct checkpoint_t));
+	
+	int fd = open("checkpoint.bin", O_RDONLY);
+	if((read(fd, &ch->p, sizeof(struct proc)) < sizeof(struct proc)) || // DeSerialize Proc
+			(read(fd, &ch->tf, sizeof(struct trapframe)) < sizeof(struct trapframe))) { // DeSerialize TrapFrame
+		printf(2, "everything went wrong\n");	
+	}
+	
 	ch->pages = malloc(ch->p.sz);
 	ch->flags = malloc(sizeof(uint) * (ch->p.sz / PGSIZE + 1));
 
-	int fd = open("checkpoint.bin", O_RDONLY);
-	if((read(fd, ch->pages, ch->p.sz) < ch->p.sz) || // DeSerialize pages
-			(read(fd, &ch->p, sizeof(struct proc)) < sizeof(struct proc)) || // DeSerialize Proc
-			(read(fd, &ch->tf, sizeof(struct trapframe)) < sizeof(struct trapframe)) || // DeSerialize TrapFrame
-			(read(fd, ch->flags, (ch->p.sz / PGSIZE + 1) * sizeof(uint)) < (ch->p.sz / PGSIZE + 1) * sizeof(uint))) {
+	if ((read(fd, ch->pages, ch->p.sz) < ch->p.sz) || // DeSerialize pages
+		(read(fd, ch->flags, (ch->p.sz / PGSIZE + 1) * sizeof(uint)) < (ch->p.sz / PGSIZE + 1) * sizeof(uint))) {
 		printf(2, "everything went wrong\n");	
 	}
  	printf(1, "we restore from addr: %p\n", ch->tf.eip);
