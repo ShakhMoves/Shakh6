@@ -92,7 +92,7 @@ int sys_checkpoint_proc(void)
 int sys_checkpoint_mem(void)
 {
 	char *p = 0;
-	if (argptr(1, &p, sizeof(struct checkpoint_t)) < 0)
+	if (argptr(0, &p, sizeof(struct checkpoint_t)) < 0)
 		return -1;
 	return checkpoint_mem((void *) p);
 }

@@ -45,7 +45,6 @@ int main() {
     // Step 2: Check point process memory
     ch->pages = malloc(ch->p.sz);
     ch->flags = malloc(sizeof(uint) * (ch->p.sz / PGSIZE + 1));
-    printf(1, "start writting memory...\n");
     if (checkpoint_mem(ch) != 0) {
         printf(1, "Memory check point failed\n");
         exit();
