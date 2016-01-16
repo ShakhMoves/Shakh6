@@ -39,7 +39,7 @@ int main() {
     p = malloc(sizeof(struct proc));
     if (checkpoint_proc(p) != 0) {
         printf(2, "Process check point failed");
-        exit(1);
+        exit();
     }
 
     // Step 2: Check point process memory
@@ -47,7 +47,7 @@ int main() {
     pg = malloc(p->sz + sizeof(struct trapframe));
     if (checkpoint_mem(pg, p->sz) != 0) {
         printf(1, "checkpoint_mem failed..\n");
-        exit(1);
+        exit();
     }
     int fd = open("checkpoint.bin", O_WRONLY | O_CREATE);
     if ((write(fd, p, sizeof(struct proc)) < sizeof(struct proc)) || // Serialize Proc
