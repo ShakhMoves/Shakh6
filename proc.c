@@ -466,46 +466,36 @@ procdump(void)
 }
 
 int
-procload(struct proc *p, char *path)
+procload(struct proc *p)
 {
   int i;
-  struct proc np;
-  struct inode *ip;
+  struct proc *np;
 
-  begin_op();
-  if ((ip = namei(path)) == 0) {
-    end_op();
+  // Allocate process.
+  if((np = allocproc()) == 0)
     return -1;
-  }
-  ilock(ip);
+
  
-  if((np.pgdir = setupkvm()) == 0)
-    return -1;
+  *np->tf = *p->tf;
+  np->pgdir = p->pgdir; 
+  np->sz = p->sz;
+  np->parent = proc;
+
+  // Clear %eax so that fork returns 0 in the child.
+  np->tf->eax = np->pid;
+
+  for(i = 0; i < NOFILE; i++)
+    if(proc->ofile[i])
+      np->ofile[i] = filedup(proc->ofile[i]);
+  np->cwd = idup(proc->cwd);
+
+  safestrcpy(np->name, proc->name, sizeof(p->name));
+ 
+  // lock to force the compiler to emit the np->state write last.
+  acquire(&ptable.lock);
+  np->state = RUNNABLE;
+  release(&ptable.lock);
   
-  np.sz = 0;
-  for(i = 0; i < p->sz; i+=PGSIZE) {
-    if((np.sz = allocuvm(np.pgdir, np.sz, i + PGSIZE)) == 0)
-      return -1;
-    if(loaduvm(np.pgdir, (void *)i, ip, sizeof(struct proc) + i, PGSIZE) < 0)
-      return -1;
-  }
-
-  iunlockput(ip);
-  end_op();
-  ip = 0;
-
-  np.tf->eax = proc->pid;
-  np.tf->eip = p->tf->eip;
-  np.tf->esp = p->tf->esp;
-  np.tf->ebp = p->tf->ebp;
-
-  proc->pgdir = np.pgdir;
-  proc->sz = PGROUNDUP(np.sz);
-  *proc->tf = *np.tf;
-
-  cprintf("set %d state running from %p\n", proc->pid, np.tf->eip);
-  switchuvm(proc);
-
   return 0;
 
 }

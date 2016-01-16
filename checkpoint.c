@@ -72,7 +72,7 @@ static int checkpoint_proc(struct checkpoint_t *ch)
 	if ((ch->p.pgdir = copyuvm(proc->pgdir, proc->sz)) == 0) {
 		return -1;
 	}
-  	ch->p.sz = proc->sz;
+  	ch->p.sz = PGROUNDUP(proc->sz);
 	ch->tf = *proc->tf;
 
   	safestrcpy(ch->p.name, proc->name, sizeof(proc->name));

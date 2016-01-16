@@ -123,7 +123,7 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
-int		procload(struct proc *p, char *path);
+int		procload(struct proc *p);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
