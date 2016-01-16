@@ -1,8 +1,37 @@
-# Shakh6 OS
-A fork of xv6
+# Shakh6 OS : A fork of xv6 operating system
+
+```
+--------------------------------------------------------------------
+	 _______. __    __       ___       __  ___  __    __     __   
+	/       ||  |  |  |     /   \     |  |/  / |  |  |  |   / /   
+   |   (----`|  |__|  |    /  ^  \    |  '  /  |  |__|  |  / /_   
+	\   \    |   __   |   /  /_\  \   |    <   |   __   | | '_ \  
+.----)   |   |  |  |  |  /  _____  \  |  .  \  |  |  |  | | (_) | 
+|_______/    |__|  |__| /__/     \__\ |__|\__\ |__|  |__|  \___/  
+--------------------------------------------------------------------
+```
 
 # What's new
-    --TODO--
+
+## Process CheckPoint/Migration/Restore
+
+Ability to save process current state to filesystem and restore later
+
+## Basic netwroking support for N2K drivers
+
+Basic networking support (bochs only)
+
+## Halt/Shutdown
+
+Halt function added (it may or may not work!)
+   
+   
+*** for a list of changelog see: [project-changes.log](project-changes.log) ***
+
+# Contributers
+
+- Parham Alvani <parham.alvani@gmail.com> ([Github](https://github.com/1995parham))
+- Pooya Parsa <pooya@pi0.ir> ([Github](https://github.com/pi0))
 
 # Original ReadMe
     xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
