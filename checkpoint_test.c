@@ -29,43 +29,43 @@
 #include "checkpoint.h"
 
 int main() {
-    int i;
-    for (i = 0; i < 10; i++)
-        printf(1, "%d\n", i);
+	int i;
+	for (i = 0; i < 10; i++)
+		printf(1, "%d\n", i);
 
 
-    // Step 1: Check point process and trapframe
-    struct checkpoint_t *ch;
-    ch = malloc(sizeof(struct checkpoint_t));
-    if (checkpoint_proc(ch) < 0) {
-        printf(2, "Process check point failed\n");
-        exit();
-    }
+    	// Step 1: Check point process and trapframe
+    	struct checkpoint_t *ch;
+    	ch = malloc(sizeof(struct checkpoint_t));
+    	if (checkpoint_proc(ch) < 0) {
+	    printf(2, "Process check point failed\n");
+	    exit();
+    	}
 
-    // Step 2: Check point process memory
-    ch->pages = malloc(ch->p.sz);
-    ch->flags = malloc(sizeof(uint) * (ch->p.sz / PGSIZE + 1));
-    if (checkpoint_mem(ch) != 0) {
-        printf(1, "Memory check point failed\n");
-        exit();
-    }
+    	// Step 2: Check point process memory
+    	ch->pages = malloc(ch->p.sz);
+    	ch->flags = malloc(sizeof(uint) * (ch->p.sz / PGSIZE + 1));
+    	if (checkpoint_mem(ch) != 0) {
+		printf(1, "Memory check point failed\n");
+		exit();
+    	}
 
-    int fd = open("checkpoint.bin", O_WRONLY | O_CREATE);
-    if ((write(fd, &ch->p, sizeof(struct proc)) < sizeof(struct proc)) || // Serialize Proc
-        (write(fd, &ch->tf, sizeof(struct trapframe)) < sizeof(struct trapframe)) || // Serialize TrapFrame
-        (write(fd, ch->pages, ch->p.sz) < ch->p.sz)) { // Serialize pages
+    	int fd = open("checkpoint.bin", O_WRONLY | O_CREATE);
+	if((write(fd, ch->pages, ch->p.sz) < ch->p.sz) || // Serialize pages
+			(write(fd, &ch->p, sizeof(struct proc)) < sizeof(struct proc)) || // Serialize Proc
+			(write(fd, &ch->tf, sizeof(struct trapframe)) < sizeof(struct trapframe)) || // Serialize TrapFrame
+			(write(fd, ch->flags, (ch->p.sz / PGSIZE + 1) * sizeof(uint)) < (ch->p.sz / PGSIZE + 1) * sizeof(uint))) {
     		printf(2, "everything went wrong\n");
-    }
-    printf(1, "write was Done on %d\n", fd);
+    	}
+	printf(1, "write was Done on %d\n", fd);
 
 
-    for (; i < 20; i++)
-        printf(1, "%d\n", i);
+    	for (; i < 20; i++)
+        	printf(1, "%d\n", i);
 
-    free(ch->pages);
-    free(ch->flags);
-    free(ch);
+    	free(ch->pages);
+    	free(ch->flags);
+    	free(ch);
 
-    exit();
-
+    	exit();
 }
