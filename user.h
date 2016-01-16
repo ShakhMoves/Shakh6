@@ -3,6 +3,7 @@
 struct stat;
 struct rtcdate;
 struct proc;
+struct checkpoint_t;
 
 // system calls
 int fork(void);
@@ -28,8 +29,8 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int ioctl(int, int, void*);
-int checkpoint_proc(struct proc *);
-int checkpoint_mem(void *, uint sz);
+int checkpoint_proc(struct checkpoint_t *);
+int checkpoint_mem(struct checkpoint_t *);
 int restore(char *, struct proc *);
 
 // ulib.c

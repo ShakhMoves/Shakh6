@@ -37,16 +37,17 @@ int main() {
     // Step 1: Check point process and trapframe
     struct checkpoint_t *ch;
     ch = malloc(sizeof(struct checkpoint_t));
-    if (checkpoint_proc(ch) != 0) {
-        printf(2, "Process check point failed");
+    if (checkpoint_proc(ch) < 0) {
+        printf(2, "Process check point failed\n");
         exit();
     }
 
     // Step 2: Check point process memory
     ch->pages = malloc(ch->p.sz);
     ch->flags = malloc(sizeof(uint) * (ch->p.sz / PGSIZE + 1));
-    if (checkpoint_mem(ch->pages, ch->p.sz) != 0) {
-        printf(1, "checkpoint_mem failed..\n");
+    printf(1, "start writting memory...\n");
+    if (checkpoint_mem(ch) != 0) {
+        printf(1, "Memory check point failed\n");
         exit();
     }
 
