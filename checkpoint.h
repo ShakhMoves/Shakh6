@@ -16,7 +16,7 @@
 #include "proc.h"
 #include "x86.h"
 
-#ifdef CHECKPOINT_H
+#ifndef CHECKPOINT_H
 #define CHECKPOINT_H
 
 struct checkpoint_t {
