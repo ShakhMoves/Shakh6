@@ -33,10 +33,10 @@ static pte_t *walkpgdir(pde_t *pgdir, const void *va, int alloc)
 
 	pde = &pgdir[PDX(va)];
 	
-	if(*pde & PTE_P){
+	if (*pde & PTE_P){
     		pgtab = (pte_t*)p2v(PTE_ADDR(*pde));
   	} else {
-    		if(!alloc || (pgtab = (pte_t*)kalloc()) == 0)
+    		if (!alloc || (pgtab = (pte_t*)kalloc()) == 0)
       			return 0;
     		// Make sure all those PTE_P bits are zero.
     		memset(pgtab, 0, PGSIZE);
@@ -51,11 +51,11 @@ static int checkpoint_mem(struct checkpoint_t *ch)
 {
 	pte_t *pte;
 	uint pa, i, flags;
-	for(i = 0; i < ch->p.sz; i += PGSIZE){
+	for (i = 0; i < ch->p.sz; i += PGSIZE){
 		cprintf("start write at %p with index %d\n", (ch->pages) + i, i);
-		if((pte = walkpgdir(ch->p.pgdir, (void *) i, 0)) == 0)
+		if ((pte = walkpgdir(ch->p.pgdir, (void *) i, 0)) == 0)
 			panic("checkpoint_mem: pte should exist");
-		if(!(*pte & PTE_P))
+		if (!(*pte & PTE_P))
 			panic("checkpoint_mem: page not present");
 		pa = PTE_ADDR(*pte);
     		flags = PTE_FLAGS(*pte);
