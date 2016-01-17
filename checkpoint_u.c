@@ -51,7 +51,7 @@ int checkpoint_u(void)
 		return -1;
     	}
 
-	char name[15];
+	char name[32];
 	strcpy(name, ch->p.name);
 	strcpy(name + strlen(name), ".bin");
 
@@ -77,11 +77,9 @@ int restore_u(char *name)
 	
 	ch = malloc(sizeof(struct checkpoint_t));
 	
-	char nname[15];
+	char nname[32];
 	strcpy(nname, name);
 	strcpy(nname + strlen(nname), ".bin");
-	printf(1, "%s\n", nname);
-
 
 	int fd = open(nname, O_RDONLY);
 	if((read(fd, &ch->p, sizeof(struct proc)) < sizeof(struct proc)) || // DeSerialize Proc
