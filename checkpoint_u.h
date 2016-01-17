@@ -1,7 +1,7 @@
 /*
  * In The Name Of God
  * ========================================
- * [] File Name : checkpoint_test.c
+ * [] File Name : checkpoint_u.h
  *
  * [] Creation Date : 13-01-2016
  *
@@ -13,21 +13,11 @@
 /*
  * Copyright (c) 2016 Parham Alvani and Pooya Parsa.
 */
-#include "checkpoint_u.h"
-#include "user.h"
+#ifndef CHECKPOINT_U_H
+#define CHECKPOINT_U_H
 
-int main() {
-	int i;
-	for (i = 0; i < 10; i++)
-		printf(1, "%d\n", i);
+int checkpoint_u(void);
 
-	if (checkpoint_u() < 0) {
-		printf(2, "everything went wrong ...\n");
-		exit();
-	}
+int restore_u(char *name);
 
-    	for (; i < 20; i++)
-        	printf(1, "%d\n", i);
-
-       	exit();
-}
+#endif
