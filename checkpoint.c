@@ -52,7 +52,6 @@ static int checkpoint_mem(struct checkpoint_t *ch)
 	pte_t *pte;
 	uint pa, i, flags;
 	for (i = 0; i < ch->p.sz; i += PGSIZE){
-		cprintf("start write at %p with index %d\n", (ch->pages) + i, i);
 		if ((pte = walkpgdir(ch->p.pgdir, (void *) i, 0)) == 0)
 			panic("checkpoint_mem: pte should exist");
 		if (!(*pte & PTE_P))
@@ -61,7 +60,6 @@ static int checkpoint_mem(struct checkpoint_t *ch)
     		flags = PTE_FLAGS(*pte);
 		memmove((ch->pages) + i, (char*)p2v(pa), PGSIZE);
 		(ch->flags)[i / PGSIZE] = flags;
-		cprintf("write successfuly at %p\n", ch->pages + i);
 	}
 
 	return 0;
@@ -76,7 +74,6 @@ static int checkpoint_proc(struct checkpoint_t *ch)
 	ch->tf = *proc->tf;
 
   	safestrcpy(ch->p.name, proc->name, sizeof(proc->name));
-	cprintf("Your process name was: %s\n", ch->p.name);
 
 	return 0;
 }

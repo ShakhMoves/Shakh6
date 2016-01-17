@@ -82,14 +82,11 @@ static int restore(struct checkpoint_t *ch)
 		return -1;
 	
 	for(i = 0; i < ch->p.sz; i += PGSIZE){
-		cprintf("start read at %p with index %d\n", (ch->pages) + i, i);
 		if((mem = kalloc()) == 0)
 			goto bad;
-		cprintf("before move ..\n");
 		memmove(mem, (ch->pages) + i, PGSIZE);
 		if(mappages(d, (char*)i, PGSIZE, v2p(mem), (ch->flags)[i / PGSIZE]) < 0)
 			goto bad;
-		cprintf("read successfuly at %p\n", ch->pages + i);
 	}
 
 	struct proc np;
